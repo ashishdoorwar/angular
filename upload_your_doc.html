@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html >
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/css/bootstrap.min.css">
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/js/bootstrap.min.js"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.7.8/angular.min.js"></script>
+<body>
+ <div class="container" >
+ <div class="row">
+ <div class="col-lg-2"></div>
+ <div class="col-lg-8">
+  <h2>Upload your scanned document</h2><br><br>
+ <form ng-app="myApp" ng-controller="myController" ng-init="select()">
+   <div class="col-lg-12">
+   <div class="col-lg-6">
+   <div class="form-group">
+ <select name="doc_type" id="doc_type" class="form-control" required>
+      <option>Select Document Type</option>
+     <option>A</option>
+     <option>B</option>
+     </select>
+ </div>
+ </div>
+   <div class="col-lg-6">
+  <div class="form-group" >
+ <select name="state" id="state" class="form-control" required>
+ <option>Select State</option>
+ <option ng-repeat="x in content" value="{{ x.id }}">{{ x.name }}</option>
+ </select>
+ </div>
+ </div>
+ </div>
+ <div class="col-lg-12">
+ <div class="col-lg-6">
+ <div class="form-group">
+ <select name="stamp" id="stamp" class="form-control" required>
+ <option>Select Stamp Duty</option><option>A</option><option>B</option></select>
+ </div>
+ </div>
+ <div class="col-lg-6" >
+ <div class="form-group">
+ <input type="file" file-input="files" />  
+        <span class="custom-file-control form-control-file"></span>
+    </div>
+ </div>
+ </div>
+<div class="col-lg-4"></div>
+<div class="col-lg-4"><div class="form-group"> <div class="col-md-6">  
+                     <button class="btn btn-info" ng-click="uploadFile()">Upload</button>  
+                </div>  
+                <div style="clear:both"></div> </div></div>
+<div class="col-lg-4"></div>
+ </form>
+ <div class="col-md-3" ng-repeat="image in images">  
+                     <img ng-src="upload/{{image.name}}" width="200" height="200" style="padding:16px; border:1px solid #f1f1f1; margin:16px;" />  
+                </div>  
+ </div>
+ <div class="col-lg-2"></div>
+ </div>
+ </div>
+
+ <script>  
+ var app = angular.module("myApp", []);  
+ app.directive("fileInput", function($parse){  
+      return{  
+           link: function($scope, element, attrs){  
+                element.on("change", function(event){  
+                     var files = event.target.files;  
+                     //console.log(files[0].name);  
+                     $parse(attrs.fileInput).assign($scope, element[0].files);  
+                     $scope.$apply();  
+                });  
+           }  
+      }  
+ });  
+ 
+ app.controller('myController', function($scope, $http){
+  $http.get("http://localhost/angular/getdata.php")
+  .then(function(response){
+    $scope.content = response.data.details;    
+$scope.uploadFile(); 	
+  });  
+      $scope.uploadFile = function(){  
+           var form_data = new FormData();  
+           angular.forEach($scope.files, function(file){  
+                form_data.append('file', file);  
+           });  
+           $http.post('http://localhost/angular/image_upload.php', form_data,
+           {  
+                transformRequest: angular.identity,  
+                headers: {'Content-Type': undefined,'Process-Data': false}  
+           }).success(function(response){  
+                alert(response);  
+             
+           });  
+      }   
+ });  
+
+
+
+</script>
+</body>
+</html>
